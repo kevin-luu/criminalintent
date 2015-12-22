@@ -35,10 +35,10 @@ public class Crime {
         mDate = date;
     }
 
-    public String getDate() {
-        DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
-        return df.format(mDate);
+    public Date getDate() {
+        return mDate;
     }
+
 
     public boolean isSolved() {
         return mSolved;
