@@ -72,7 +72,6 @@ public class DatePickerFragment extends DialogFragment {
 
         Intent intent = new Intent();
         intent.putExtra(EXTRA_DATE, date);
-        Log.d("asdf", Integer.toString(resultCode));
         getTargetFragment()
                 .onActivityResult(getTargetRequestCode(), resultCode, intent);
     }

@@ -23,7 +23,7 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
-    private static final String REFRESH_CRIME_POS =
+    public static final String EXTRA_CRIME_POS =
             "com.kevinluu.criminalintent.refresh_crime_pos";
     private static final String DIALOG_DATE = "DialogDate";
     private static final int REQUEST_DATE = 0;
@@ -44,10 +44,10 @@ public class CrimeFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-
         if (requestCode == REQUEST_DATE) {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
@@ -64,13 +64,8 @@ public class CrimeFragment extends Fragment {
 
     public void returnResult() {
         Intent intent = new Intent();
-        int position = CrimeLab.get(getActivity()).getPos(mCrime.getID());
-        intent.putExtra(REFRESH_CRIME_POS, position);
+        intent.putExtra(EXTRA_CRIME_POS, mCrime.getPosition());
         getActivity().setResult(Activity.RESULT_OK, intent);
-    }
-
-    public static int getRefreshPosition(Intent result) {
-        return result.getIntExtra(REFRESH_CRIME_POS, -1);
     }
 
     @Override
@@ -83,7 +78,6 @@ public class CrimeFragment extends Fragment {
             @Override
             public void beforeTextChanged(CharSequence s, int start,
                                           int count, int after) {
-
             }
 
             @Override
@@ -105,8 +99,8 @@ public class CrimeFragment extends Fragment {
         mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                returnResult();
                 mCrime.setSolved(isChecked);
+                returnResult();
             }
         });
         //
@@ -116,6 +110,7 @@ public class CrimeFragment extends Fragment {
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                returnResult();
                 FragmentManager manager = getFragmentManager();
                 DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);

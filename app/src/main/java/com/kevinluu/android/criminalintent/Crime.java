@@ -39,6 +39,9 @@ public class Crime {
         return mDate;
     }
 
+    public int getPosition() {
+        return CrimeLab.get(null).getPos(getID());
+    }
 
     public boolean isSolved() {
         return mSolved;

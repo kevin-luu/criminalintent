@@ -23,7 +23,6 @@ public class CrimeListFragment extends Fragment {
     private static final int REQUEST_CRIME = 1;
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
-    private int mItemChanged;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,15 +37,10 @@ public class CrimeListFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
         if(requestCode == REQUEST_CRIME) {
-            Log.d("asdf","here");
             if(data == null) { return; }
-
-            int pos = CrimeFragment.getRefreshPosition(data);
-            Log.d("asdf", Integer.toString(pos));
-            mAdapter.notifyItemChanged(pos);
+            int position = data.getIntExtra(CrimeFragment.EXTRA_CRIME_POS, 0);
+            mAdapter.notifyItemChanged(position);
         }
     }
 
