@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.util.List;
 import java.util.UUID;
 
 
-public class CrimePagerActivity extends FragmentActivity {
+public class CrimePagerActivity extends AppCompatActivity {
 
     private ViewPager mViewPager;
     private List<Crime> mCrimes;
@@ -31,6 +33,7 @@ public class CrimePagerActivity extends FragmentActivity {
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override
             public Fragment getItem(int position) {
+                Log.d("asdf", "position: " + Integer.toString(position));
                 Crime crime = mCrimes.get(position);
                 return CrimeFragment.newInstance(crime.getID());
             }
@@ -43,14 +46,25 @@ public class CrimePagerActivity extends FragmentActivity {
 
         UUID crimeId = (UUID) getIntent()
                 .getSerializableExtra(EXTRA_CRIME_ID);
-        int position = CrimeLab.get(this).getPos(crimeId);
+        int position = getPosition(crimeId);
         if(position > 0) {
             mViewPager.setCurrentItem(position);
         }
 
     }
 
-    public static Intent getIntent(Context packageContext, UUID crimeId) {
+    private int getPosition(UUID crimeId) {
+        int i = 0;
+        for(Crime crime: mCrimes) {
+            if(crime.getID().toString().equals(crimeId.toString())) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    public static Intent newIntent(Context packageContext, UUID crimeId) {
         Intent intent = new Intent(packageContext, CrimePagerActivity.class);
         intent.putExtra(EXTRA_CRIME_ID, crimeId);
         return intent;

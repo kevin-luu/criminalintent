@@ -15,7 +15,11 @@ public class Crime {
     private boolean mSolved;
 
     public Crime() {
-        mId = UUID.randomUUID();
+        this(UUID.randomUUID());
+    }
+
+    public Crime(UUID id) {
+        mId = id;
         mDate = new Date();
     }
 
@@ -39,9 +43,6 @@ public class Crime {
         return mDate;
     }
 
-    public int getPosition() {
-        return CrimeLab.get(null).getPos(getID());
-    }
 
     public boolean isSolved() {
         return mSolved;

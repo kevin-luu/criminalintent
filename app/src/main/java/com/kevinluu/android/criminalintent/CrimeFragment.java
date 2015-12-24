@@ -8,6 +8,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -17,7 +20,6 @@ import android.view.ViewGroup;
 import android.text.Editable;
 import android.text.TextWatcher;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -25,9 +27,9 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
-    public static final String EXTRA_CRIME_POS =
-            "com.kevinluu.criminalintent.refresh_crime_pos";
-    //
+    public static final String EXTRA_CRIME_ID =
+            "com.kevinluu.criminalintent.crime_id";
+
     private static final String DIALOG_DATE = "DialogDate";
     private static final int REQUEST_DATE = 0;
     private static final String DIALOG_TIME = "DialogTime";
@@ -47,6 +49,40 @@ public class CrimeFragment extends Fragment {
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        CrimeLab.get(getActivity())
+                .updateCrime(mCrime);
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime_list, menu);
+        //
+        MenuItem mDeleteButton = menu.findItem(R.id.menu_item_delete_crime);
+        mDeleteButton.setVisible(true);
+        //
+        MenuItem mSubtitleVisible = menu.findItem(R.id.menu_item_show_subtitle);
+        mSubtitleVisible.setVisible(false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.menu_item_delete_crime:
+                CrimeLab crimeLab = CrimeLab.get(getActivity());
+                returnResult();
+                crimeLab.removeCrime(mCrime.getID());
+                Log.d("asdf", "just deleted");
+                getActivity().finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -71,11 +107,12 @@ public class CrimeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+        setHasOptionsMenu(true);
     }
 
     public void returnResult() {
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_CRIME_POS, mCrime.getPosition());
+        intent.putExtra(EXTRA_CRIME_ID, mCrime.getID());
         getActivity().setResult(Activity.RESULT_OK, intent);
     }
 
