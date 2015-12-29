@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 
 import com.kevinluu.android.criminalintent.database.CrimeBaseHelper;
@@ -11,6 +12,7 @@ import com.kevinluu.android.criminalintent.database.CrimeCursorWrapper;
 import com.kevinluu.android.criminalintent.database.CrimeDbSchema;
 import com.kevinluu.android.criminalintent.database.CrimeDbSchema.CrimeTable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +47,7 @@ public class CrimeLab {
         values.put(CrimeTable.Cols.TITLE, crime.getTitle());
         values.put(CrimeTable.Cols.DATE, crime.getDate().getTime());
         values.put(CrimeTable.Cols.SOLVED, crime.isSolved() ? 1: 0);
+        values.put(CrimeTable.Cols.SUSPECT, crime.getSuspect());
         return values;
     }
 
@@ -82,7 +85,7 @@ public class CrimeLab {
         int rowsEffected = mDatabase.delete(
                 CrimeTable.NAME,
                 CrimeTable.Cols.UUID + " = ?",
-                new String[] {uuidString}
+                new String[]{uuidString}
         );
         return (rowsEffected > 0) ? true : false;
     }
@@ -90,7 +93,7 @@ public class CrimeLab {
     public Crime getCrime(UUID id) {
         CrimeCursorWrapper cursor = queryCrimes(
                 CrimeTable.Cols.UUID + " = ?",
-                new String[] {id.toString()}
+                new String[]{id.toString()}
         );
         try {
             if(cursor.getCount() == 0) {
@@ -115,4 +118,13 @@ public class CrimeLab {
         );
         return new CrimeCursorWrapper(cursor);
     }
+
+    public File getPhotoFile(Crime crime) {
+        File externalFileDir = mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if(externalFileDir == null) {
+            return null;
+        }
+        return new File(externalFileDir, crime.getPhotoFilename());
+    }
+
 }

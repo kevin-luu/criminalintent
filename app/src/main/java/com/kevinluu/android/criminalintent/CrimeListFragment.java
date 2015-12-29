@@ -1,11 +1,12 @@
 package com.kevinluu.android.criminalintent;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,9 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.UUID;
 
 /**
@@ -37,6 +36,8 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
+
+    private Callbacks mCallbacks;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,6 +68,21 @@ public class CrimeListFragment extends Fragment {
         updateUI();
 
         return view;
+    }
+
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
     @Override
@@ -100,8 +116,8 @@ public class CrimeListFragment extends Fragment {
             case R.id.menu_item_new_crime:
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getID());
-                startActivityForResult(intent, NEW_CRIME);
+                updateUI();
+                mCallbacks.onCrimeSelected(crime);
                 return true;
             case R.id.menu_item_show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -115,13 +131,12 @@ public class CrimeListFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("asdf", "req code: "+Integer.toString(requestCode));
         switch(requestCode) {
             case REQUEST_CRIME:
                 if(data == null) { return; }
                 UUID crimeId = (UUID) data.getSerializableExtra(CrimeFragment.EXTRA_CRIME_ID);
                 updateUI();
-//                mAdapter.notifyItemChanged(mAdapter.updateCrime(crimeId));
+                mAdapter.notifyItemChanged(mAdapter.updateCrime(crimeId));
                 break;
             case NEW_CRIME:
                 updateUI();
@@ -145,7 +160,6 @@ public class CrimeListFragment extends Fragment {
     }
 
     private void togglePlaceholder() {
-        Log.d("asdf", Integer.toString(mAdapter.getItemCount()));
         if (mAdapter.getItemCount() == 0) {
             mPlaceholderLayout.setVisibility(LinearLayout.VISIBLE);
             mCrimeRecyclerView.setVisibility(LinearLayout.GONE);
@@ -205,8 +219,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getID());
-            startActivityForResult(intent, REQUEST_CRIME);
+            mCallbacks.onCrimeSelected(mCrime);
         }
     }
 
